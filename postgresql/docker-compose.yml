@@ -14,3 +14,8 @@ services:
 networks:
   company-net:
     external: true
+
+
+# Create user and database with:
+# docker exec -it postgres psql -U postgres -c "CREATE USER n8n WITH PASSWORD 'n8npassword';"
+# docker exec -it postgres psql -U postgres -c "CREATE DATABASE n8n OWNER n8n;"
