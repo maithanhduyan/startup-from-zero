@@ -5,7 +5,7 @@ services:
     image: odoo:15.0
     volumes:
       - ./addons:/mnt/extra-addons # contain odoo dev modules
-      - ./conf:/etc/odoo # contain config and log
+      - ./config:/etc/odoo # contain config and log
       - ./web-data:/var/lib/odoo # contain odoo web data
       - ./log:/var/log/odoo # contain odoo log data
     ports:
@@ -27,3 +27,6 @@ services:
 networks:
   company-net:
     external: true
+
+# odoo permissions
+# sudo chown -R 101:101 ./addons ./config ./web-data ./log
