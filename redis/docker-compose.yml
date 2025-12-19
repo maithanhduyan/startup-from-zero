@@ -1,0 +1,15 @@
+services:
+  redis:
+    image: redis:7
+    container_name: redis
+    volumes:
+      - ./data:/data
+    environment:
+      - TZ=UTC
+    restart: unless-stopped
+    networks:
+      - company-net
+
+networks:
+  company-net:
+    external: true

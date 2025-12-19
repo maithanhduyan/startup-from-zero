@@ -1,0 +1,28 @@
+services:
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    networks:
+      - company-net
+    env_file:
+      - ./.env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin.rule=Host(`${PGADMIN_HOST_NAME}`)"
+      - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
+      - "traefik.http.routers.pgadmin.entrypoints=web,websecure"
+      - "traefik.http.routers.pgadmin.service=pgadmin"
+      - "traefik.http.routers.pgadmin.tls.certresolver=letsencrypt"
+    volumes:
+      - ./pgadmin:/var/lib/pgadmin
+    restart: always
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/misc/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+networks:
+  company-net:
+    external: true

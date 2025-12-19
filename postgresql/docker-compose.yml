@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    env_file: .env
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    environment:
+      - TZ=UTC
+    restart: unless-stopped
+    networks:
+      - company-net
+
+networks:
+  company-net:
+    external: true

@@ -1,0 +1,29 @@
+services:
+
+  odoo:
+    container_name: odoo_15
+    image: odoo:15.0
+    volumes:
+      - ./addons:/mnt/extra-addons # contain odoo dev modules
+      - ./conf:/etc/odoo # contain config and log
+      - ./web-data:/var/lib/odoo # contain odoo web data
+      - ./log:/var/log/odoo # contain odoo log data
+    ports:
+      - "8069:8069" # web
+      - "8072:8072" # web
+    networks:
+      - company-net
+    restart: always
+    # Chờ PostgreSQL container được khởi động
+    # external_links:
+    #   - postgresql:db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8069"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+networks:
+  company-net:
+    external: true

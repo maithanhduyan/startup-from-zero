@@ -1,0 +1,18 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    volumes:
+      - ./data:/root/.ollama
+    environment:
+      - TZ=UTC
+    restart: unless-stopped
+    networks:
+      - company-net
+
+networks:
+  company-net:
+    external: true
+
+# Sau khi chạy, tải model embedding:
+# docker exec -it ollama ollama pull nomic-embed-text

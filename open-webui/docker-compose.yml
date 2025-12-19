@@ -1,0 +1,26 @@
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    env_file: .env
+    volumes:
+      - ./data:/app/backend/data
+    environment:
+      - TZ=UTC
+      - OLLAMA_BASE_URL=http://ollama:11434
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.open-webui.rule=Host(`${OPEN_WEBUI_HOST}`)"
+      - "traefik.http.routers.open-webui.tls=true"
+      - "traefik.http.routers.open-webui.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.open-webui.entrypoints=websecure"
+      - "traefik.http.services.open-webui.loadbalancer.server.port=8080"
+    restart: unless-stopped
+    networks:
+      - company-net
+
+networks:
+  company-net:
+    external: true
+
+# 
