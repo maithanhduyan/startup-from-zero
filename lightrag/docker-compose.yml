@@ -4,6 +4,13 @@ services:
     image: ghcr.io/hkuds/lightrag:latest
     ports:
       - "${PORT:-9621}:9621"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.lightrag.rule=Host(`${LIGHTRAG_HOST:-lightrag.example.com}`)"
+      - "traefik.http.routers.lightrag.tls=true"
+      - "traefik.http.routers.lightrag.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.lightrag.entrypoints=websecure"
+      - "traefik.http.services.lightrag.loadbalancer.server.port=${PORT:-9621}"
     volumes:
       # Thư mục lưu trữ dữ liệu RAG
       - ./data/rag_storage:/app/data/rag_storage
@@ -48,13 +55,19 @@ services:
       - ENABLE_LLM_CACHE=${ENABLE_LLM_CACHE:-true}
       - ENABLE_LLM_CACHE_FOR_EXTRACT=${ENABLE_LLM_CACHE_FOR_EXTRACT:-true}
     restart: unless-stopped
-    extra_hosts:
-      # Cho phép container truy cập localhost của host machine
-      - "host.docker.internal:host-gateway"
+    # extra_hosts:
+    #   # Cho phép container truy cập localhost của host machine
+    #   - "host.docker.internal:host-gateway"
     networks:
       - company-net
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9621/health"]
+      test:
+        [
+          "CMD",
+          "python3",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:9621/health')",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
