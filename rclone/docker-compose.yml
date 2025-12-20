@@ -1,0 +1,60 @@
+services:
+  rclone:
+    image: rclone/rclone:latest
+    container_name: rclone
+    volumes:
+      # Cấu hình rclone (rclone.conf)
+      - ./config:/config/rclone
+      # Thư mục data cần đồng bộ với Google Drive
+      - /opt/gdrive-sync:/data
+    environment:
+      - TZ=UTC
+      - PUID=0
+      - PGID=0
+    # Mặc định: chạy sync từ Google Drive về local
+    # Đổi command tùy nhu cầu
+    command: >
+      sync gdrive: /data
+      --progress
+      --transfers=4
+      --checkers=8
+      --log-level=INFO
+    restart: "no"
+
+  # Service chạy định kỳ backup từ local lên Google Drive
+  rclone-backup:
+    image: rclone/rclone:latest
+    container_name: rclone-backup
+    profiles:
+      - backup
+    volumes:
+      - ./config:/config/rclone
+      - /opt/gdrive-sync:/data:ro
+    environment:
+      - TZ=UTC
+    command: >
+      sync /data gdrive:backup
+      --progress
+      --transfers=4
+      --checkers=8
+      --log-level=INFO
+    restart: "no"
+# Hướng dẫn sử dụng:
+#
+# 1. Tạo thư mục data:
+#    sudo mkdir -p /opt/gdrive-sync
+#
+# 2. Cấu hình Google Drive (chạy 1 lần):
+#    docker compose run --rm rclone config
+#
+# 3. Sync từ Google Drive về local:
+#    docker compose up rclone
+#
+# 4. Backup từ local lên Google Drive:
+#    docker compose --profile backup up rclone-backup
+#
+# 5. Xem danh sách files trên Google Drive:
+#    docker compose run --rm rclone ls gdrive:
+#
+# 6. Chạy định kỳ với cron:
+#    0 2 * * * cd /home/rclone && docker compose up rclone -d

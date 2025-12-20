@@ -48,6 +48,14 @@ services:
       MINIO_ADDRESS: minio:9000
     volumes:
       - ./data:/var/lib/milvus
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+        reservations:
+          cpus: "0.5"
+          memory: 1G
     logging:
       driver: "json-file"
       options:
@@ -69,7 +77,6 @@ services:
 networks:
   company-net:
     external: true
-
 # Milvus sẽ chạy trên port 19530 (gRPC) và 9091 (HTTP)
 # Các service khác kết nối qua: http://milvus:19530
 # Lưu trữ dữ liệu Milvus trong thư mục ./data
